@@ -1,0 +1,15 @@
+{
+  "public": true,
+  "buildCommand": "",
+  "outputDirectory": ".",
+  "rewrites": [
+    {
+      "source": "/index.html",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/:path*",
+      "destination": "/:path*"
+    }
+  ]
+}

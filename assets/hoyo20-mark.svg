@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-labelledby="title desc">
+  <title id="title">Hoyo 20 Gestion TI</title>
+  <desc id="desc">Icono corporativo con bandera de golf y acento verde para Hoyo 20.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0c1f46" />
+      <stop offset="100%" stop-color="#07122a" />
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#63c47d" />
+      <stop offset="100%" stop-color="#2d9f62" />
+    </linearGradient>
+  </defs>
+  <rect width="256" height="256" rx="56" fill="url(#bg)" />
+  <circle cx="128" cy="128" r="92" fill="#ffffff" fill-opacity="0.06" />
+  <path d="M96 54c4.4 0 8 3.6 8 8v104c0 4.4-3.6 8-8 8s-8-3.6-8-8V62c0-4.4 3.6-8 8-8Z" fill="#ffffff" />
+  <path d="M104 64h66c6.6 0 10.4 7.5 6.4 12.7l-19.6 25.1 19.6 25.1c4 5.2.2 12.7-6.4 12.7h-66Z" fill="url(#accent)" />
+  <path d="M64 177c0-6.6 5.4-12 12-12h104c6.6 0 12 5.4 12 12 0 8.8-3.1 17.3-8.7 24H72.7c-5.6-6.7-8.7-15.2-8.7-24Z" fill="#e9eef9" />
+  <circle cx="128" cy="177" r="18" fill="#ffffff" />
+  <circle cx="121" cy="171" r="1.9" fill="#a8b4c8" />
+  <circle cx="133" cy="171" r="1.9" fill="#a8b4c8" />
+  <circle cx="127" cy="179" r="1.9" fill="#a8b4c8" />
+</svg>

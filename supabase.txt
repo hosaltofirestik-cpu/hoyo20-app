@@ -1,0 +1,7 @@
+Anon Key
+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRrYm16amx1YnBrbXRsc2tqaW5kIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwODYwMjYsImV4cCI6MjA5MDY2MjAyNn0.LLZ5Lb0QxvbOFcVTFq50WMEc_EZlGDEsi9kBEDeO0xM
+
+
+Project URL
+
+https://tkbmzjlubpkmtlskjind.supabase.co

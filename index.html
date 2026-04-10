@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestion Operativa TI | Hoyo 20</title>
+  <link rel="icon" type="image/svg+xml" href="assets/hoyo20-mark.svg">
+  <link rel="shortcut icon" href="assets/hoyo20-mark.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="modules/invoices/invoice-module.css">
+</head>
+<body>
+  <section class="auth-shell" id="auth-shell">
+    <div class="auth-card">
+      <div class="auth-brand">
+        <div class="brand-mark">
+          <img src="assets/hoyo20-mark.svg" alt="Hoyo 20" class="brand-mark-icon">
+        </div>
+        <div>
+          <strong>Hoyo 20</strong>
+          <span>Acceso interno con Supabase</span>
+        </div>
+      </div>
+      <div class="auth-copy">
+        <h1>Ingreso operativo</h1>
+        <p>Accede con tu usuario para ver incidencias, solicitudes, consumibles y facturas compartidas.</p>
+      </div>
+      <form id="auth-form" class="auth-form">
+        <label>
+          Correo
+          <input type="email" id="auth-email" autocomplete="username" placeholder="soporte@hoyo20.com" required>
+        </label>
+        <label>
+          Clave
+          <input type="password" id="auth-password" autocomplete="current-password" placeholder="Tu clave interna" required>
+        </label>
+        <div class="drawer-actions">
+          <button type="submit" class="primary" id="auth-submit">Entrar</button>
+        </div>
+        <p class="auth-status" id="auth-status">Conectando con Supabase...</p>
+      </form>
+    </div>
+  </section>
+
+  <div class="admin-shell hidden" id="admin-shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark">
+          <img src="assets/hoyo20-mark.svg" alt="Hoyo 20" class="brand-mark-icon">
+        </div>
+        <div>
+          <strong>Hoyo 20</strong>
+          <span>Gestion TI</span>
+        </div>
+      </div>
+
+      <nav class="nav-list">
+        <button class="nav-item active" type="button" data-view="all">Incidencias</button>
+        <button class="nav-item" type="button" data-view="requests">Solicitudes</button>
+        <button class="nav-item" type="button" data-view="followup">Seguimiento</button>
+        <button class="nav-item" type="button" data-view="inventory">Consumibles</button>
+        <button class="nav-item" type="button" data-view="invoices">Facturas</button>
+        <button class="nav-item" type="button" data-view="resolved">Resueltas</button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <p>Uso interno</p>
+        <p id="storage-status" class="storage-status">Supabase no conectado</p>
+      </div>
+    </aside>
+
+    <div class="workspace">
+      <header class="appbar">
+        <button type="button" class="menu-toggle" id="menu-toggle" aria-label="Abrir menú">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+        <div class="search-wrap">
+          <input type="search" id="global-search" placeholder="Buscar por incidencia, servicio o responsable">
+        </div>
+        <div class="appbar-actions">
+          <button type="button" class="icon-button" id="sync-data">Sincronizar</button>
+          <button type="button" class="icon-button" id="open-new-case">Nuevo caso</button>
+          <span class="appbar-user-email" id="current-user-email">Sin sesion</span>
+          <div class="user-chip" id="current-user-chip">--</div>
+          <button type="button" class="icon-button" id="logout-button">Salir</button>
+        </div>
+      </header>
+
+      <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+      <main class="content">
+        <section class="page-head">
+          <div>
+            <h1 id="page-title">Incidencias operativas</h1>
+            <p id="page-subtitle">Registro centralizado de incidentes, analisis tecnico y solicitudes derivadas.</p>
+          </div>
+          <div class="head-actions" id="page-head-actions">
+            <button type="button" class="primary" id="create-case">Nuevo</button>
+            <button type="button" class="secondary" id="edit-selected">Editar</button>
+            <button type="button" class="secondary" id="generate-selected-mail">Generar solicitud</button>
+          </div>
+        </section>
+
+        <section class="panel table-panel" id="incidents-module">
+          <div class="table-toolbar">
+            <div class="toolbar-left">
+              <span class="section-title">Listado de casos</span>
+              <span id="results-meta" class="results-meta">0 registros</span>
+            </div>
+            <div class="toolbar-right">
+              <button type="button" class="secondary" id="export-incidents-xlsx">Exportar XLSX</button>
+              <select id="status-filter">
+                <option value="">Todos los estados</option>
+                <option value="Abierto">Abierto</option>
+                <option value="En analisis">En analisis</option>
+                <option value="En seguimiento">En seguimiento</option>
+                <option value="Resuelto">Resuelto</option>
+                <option value="Escalado">Escalado</option>
+              </select>
+              <select id="priority-filter">
+                <option value="">Todas las prioridades</option>
+                <option value="Critica">Critica</option>
+                <option value="Alta">Alta</option>
+                <option value="Media">Media</option>
+                <option value="Baja">Baja</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Fecha y hora</th>
+                  <th>Servicio</th>
+                  <th>Incidencia</th>
+                  <th>Prioridad</th>
+                  <th>Estado</th>
+                  <th>Responsable</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="incident-table-body">
+                <tr>
+                  <td colspan="8" class="empty-cell">No hay casos registrados.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="pagination-bar">
+            <div class="pagination-info" id="pagination-info">Mostrando 0-0 de 0</div>
+            <div class="pagination-controls">
+              <button type="button" class="secondary small" id="prev-page">Anterior</button>
+              <span id="page-indicator">Pagina 1</span>
+              <button type="button" class="secondary small" id="next-page">Siguiente</button>
+              <select id="page-size">
+                <option value="10" selected>10</option>
+                <option value="20">20</option>
+                <option value="50">50</option>
+              </select>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel detail-panel" id="incidents-detail-module">
+          <div class="detail-toolbar">
+            <div>
+              <span class="section-title">Detalle del caso</span>
+              <p class="detail-subtitle">Vista completa del incidente o de la solicitud generada.</p>
+            </div>
+            <div class="detail-actions">
+              <button type="button" class="secondary" id="view-case-detail">Ver caso</button>
+              <button type="button" class="secondary" id="view-mail-detail">Ver solicitud</button>
+              <button type="button" class="primary" id="download-pdf">Descargar PDF</button>
+            </div>
+          </div>
+
+          <article class="document-view" id="document-view">
+            <div class="document-empty">Selecciona un caso para ver el detalle completo.</div>
+          </article>
+        </section>
+
+        <section class="panel table-panel hidden" id="requests-module">
+          <div class="table-toolbar">
+            <div class="toolbar-left">
+              <span class="section-title">Solicitudes registradas</span>
+              <span id="requests-results-meta" class="results-meta">0 registros</span>
+            </div>
+            <div class="toolbar-right">
+              <button type="button" class="secondary" id="export-requests-xlsx">Exportar XLSX</button>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Fecha y hora</th>
+                  <th>Incidencia base</th>
+                  <th>Destinatario</th>
+                  <th>Estado</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="requests-table-body">
+                <tr>
+                  <td colspan="6" class="empty-cell">No hay solicitudes guardadas.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="panel detail-panel hidden" id="requests-detail-module">
+          <div class="detail-toolbar">
+            <div>
+              <span class="section-title">Detalle de solicitud</span>
+              <p class="detail-subtitle">Seguimiento del cuerpo enviado y estado actual.</p>
+            </div>
+          </div>
+          <article class="document-view" id="request-document-view">
+            <div class="document-empty">Selecciona una solicitud para ver su detalle.</div>
+          </article>
+        </section>
+
+        <section class="panel table-panel hidden" id="inventory-module">
+          <div class="table-toolbar">
+            <div class="toolbar-left">
+              <span class="section-title">Control de consumibles</span>
+              <span id="inventory-results-meta" class="results-meta">0 articulos</span>
+            </div>
+            <div class="toolbar-right">
+              <button type="button" class="primary" id="open-inventory-form">Nuevo insumo</button>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Articulo</th>
+                  <th>Disponible</th>
+                  <th>Total</th>
+                  <th>Entregado</th>
+                  <th>Stock minimo</th>
+                  <th>Ubicacion base</th>
+                  <th>Ultima actualizacion</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="inventory-table-body">
+                <tr>
+                  <td colspan="8" class="empty-cell">No hay consumibles registrados.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="pagination-bar">
+            <div class="pagination-info" id="inventory-pagination-info">Mostrando 0-0 de 0</div>
+            <div class="pagination-controls">
+              <button type="button" class="secondary small" id="inventory-prev-page">Anterior</button>
+              <span id="inventory-page-indicator">Pagina 1</span>
+              <button type="button" class="secondary small" id="inventory-next-page">Siguiente</button>
+              <select id="inventory-page-size">
+                <option value="10" selected>10</option>
+                <option value="20">20</option>
+                <option value="50">50</option>
+              </select>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel detail-panel hidden" id="inventory-detail-module">
+          <div class="detail-toolbar">
+            <div>
+              <span class="section-title" id="inventory-detail-title">Detalle de consumible</span>
+              <p class="detail-subtitle" id="inventory-detail-subtitle">Selecciona un articulo para revisar asignaciones, perdidas y movimientos.</p>
+            </div>
+          </div>
+          <div class="inventory-summary-grid" id="inventory-summary-metrics">
+            <div class="inventory-summary-empty">Selecciona un articulo para ver el resumen operativo.</div>
+          </div>
+          <div class="detail-actions inventory-movement-bar">
+            <label class="inventory-movement-field">
+              <span>Cantidad</span>
+              <input type="number" id="inventory-move-qty" min="1" value="1" placeholder="Cantidad">
+            </label>
+            <div class="inventory-chip-block">
+              <span class="inventory-chip-label">Entregar a</span>
+              <div class="chip-set" id="inventory-checkout-bays"></div>
+            </div>
+            <div class="inventory-movement-actions">
+              <button type="button" class="secondary" id="inventory-checkout">Entregar</button>
+            </div>
+          </div>
+          <section class="panel table-panel nested-table-panel">
+            <div class="table-toolbar compact-toolbar">
+              <div class="toolbar-left">
+                <span class="section-title">Asignacion actual por bahia</span>
+                <span id="inventory-allocation-results-meta" class="results-meta">0 registros</span>
+              </div>
+            </div>
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Bahia</th>
+                    <th>Cantidad asignada</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody id="inventory-allocation-table-body">
+                  <tr>
+                    <td colspan="4" class="empty-cell">Selecciona un articulo para ver las bahias asignadas.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="inventory-collection-panel" id="inventory-collection-panel" aria-hidden="true"></div>
+          </section>
+          <section class="panel table-panel nested-table-panel">
+            <div class="table-toolbar compact-toolbar">
+              <div class="toolbar-left">
+                <span class="section-title">Historial de movimientos</span>
+                <span id="inventory-history-results-meta" class="results-meta">0 registros</span>
+              </div>
+            </div>
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Fecha y hora</th>
+                    <th>Tipo</th>
+                    <th>Bahia</th>
+                    <th>Cantidad</th>
+                    <th>Motivo</th>
+                    <th>Detalle</th>
+                    <th>Stock</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody id="inventory-history-table-body">
+                  <tr>
+                    <td colspan="8" class="empty-cell">Selecciona un articulo para ver su historial.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="pagination-bar">
+              <div class="pagination-info" id="inventory-history-pagination-info">Mostrando 0-0 de 0</div>
+              <div class="pagination-controls">
+                <button type="button" class="secondary small" id="inventory-history-prev-page">Anterior</button>
+                <span id="inventory-history-page-indicator">Pagina 1</span>
+                <button type="button" class="secondary small" id="inventory-history-next-page">Siguiente</button>
+                <select id="inventory-history-page-size">
+                  <option value="10" selected>10</option>
+                  <option value="20">20</option>
+                  <option value="50">50</option>
+                </select>
+              </div>
+            </div>
+          </section>
+          <section class="panel table-panel nested-table-panel">
+            <div class="table-toolbar compact-toolbar">
+              <div class="toolbar-left">
+                <span class="section-title">Reporte de perdidas por bahia</span>
+                <span id="inventory-report-results-meta" class="results-meta">0 bahias</span>
+              </div>
+              <div class="toolbar-right inventory-report-toolbar">
+                <button type="button" class="secondary" id="export-inventory-report-xlsx">Exportar XLSX</button>
+                <select id="inventory-report-preset">
+                  <option value="7d" selected>Ultima semana</option>
+                  <option value="30d">Ultimos 30 dias</option>
+                  <option value="month">Mes actual</option>
+                  <option value="custom">Personalizado</option>
+                </select>
+                <input type="date" id="inventory-report-start">
+                <input type="date" id="inventory-report-end">
+              </div>
+            </div>
+            <div class="inventory-summary-grid" id="inventory-report-summary">
+              <div class="inventory-summary-empty">Selecciona un articulo para ver el reporte de perdidas.</div>
+            </div>
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Bahia</th>
+                    <th>Unidades perdidas</th>
+                    <th>Eventos</th>
+                    <th>Motivos</th>
+                    <th>Ultimo registro</th>
+                  </tr>
+                </thead>
+                <tbody id="inventory-report-table-body">
+                  <tr>
+                    <td colspan="5" class="empty-cell">Selecciona un articulo para generar el reporte.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+        </section>
+
+        <section id="invoice-module-host" class="hidden"></section>
+      </main>
+    </div>
+  </div>
+
+  <aside class="drawer" id="case-drawer" aria-hidden="true">
+    <div class="drawer-header">
+      <div>
+        <p class="drawer-kicker">Formulario</p>
+        <h2 id="drawer-title">Nuevo caso</h2>
+      </div>
+      <button type="button" class="icon-close" id="close-drawer">Cerrar</button>
+    </div>
+
+    <div class="drawer-tabs">
+      <button type="button" class="tab-button active" data-tab="case-form">Caso</button>
+      <button type="button" class="tab-button" data-tab="mail-panel">Solicitud</button>
+      <button type="button" class="tab-button" data-tab="inventory-form">Consumible</button>
+    </div>
+
+    <section class="drawer-section active" id="case-form-section">
+      <form id="incident-form" class="form-grid">
+        <input type="hidden" id="incident-id">
+        <input type="hidden" id="record-created-at">
+
+        <label>
+          Fecha y hora del incidente
+          <input type="datetime-local" id="occurred-at" required>
+        </label>
+
+        <label>
+          Fecha y hora de registro
+          <input type="text" id="created-at-display" readonly>
+        </label>
+
+        <label>
+          Servicio o plataforma afectada
+          <input type="text" id="area" placeholder="Ej. Active Directory, internet principal, CCTV" required>
+        </label>
+
+        <label>
+          Incidencia reportada
+            <input type="text" id="title" placeholder="Ej. Caida parcial de red en caja y recepcion" required>
+        </label>
+
+        <label>
+          Nivel de atencion
+          <select id="priority" required>
+            <option value="Critica">Critica</option>
+            <option value="Alta">Alta</option>
+            <option value="Media" selected>Media</option>
+            <option value="Baja">Baja</option>
+          </select>
+        </label>
+
+        <label>
+          Impacto operativo
+          <select id="impact" required>
+            <option value="Interrupcion total del servicio">Interrupcion total del servicio</option>
+            <option value="Afectacion parcial a usuarios" selected>Afectacion parcial a usuarios</option>
+            <option value="Riesgo de continuidad operativa">Riesgo de continuidad operativa</option>
+            <option value="Incidencia controlada sin impacto mayor">Incidencia controlada sin impacto mayor</option>
+          </select>
+        </label>
+
+        <label>
+          Estado del caso
+          <select id="status" required>
+            <option value="Abierto">Abierto</option>
+            <option value="En analisis">En analisis</option>
+            <option value="En seguimiento">En seguimiento</option>
+            <option value="Resuelto">Resuelto</option>
+            <option value="Escalado">Escalado</option>
+          </select>
+        </label>
+
+        <label class="full">
+          Descripcion tecnica
+          <textarea id="description" rows="4" placeholder="Que ocurrio, a quien afecto y como se evidencio el incidente" required></textarea>
+        </label>
+
+        <label class="full">
+          Causa raiz o diagnostico tecnico
+          <textarea id="cause" rows="3" placeholder="Falla electrica, servicio detenido, error de permisos, saturacion, dano fisico" required></textarea>
+        </label>
+
+        <label class="full">
+          Accion ejecutada o plan de remediacion
+          <textarea id="solution" rows="4" placeholder="Validaciones realizadas, medidas correctivas o siguiente paso previsto" required></textarea>
+        </label>
+
+        <label>
+          Tipo de gestion requerida
+          <select id="request-type">
+            <option value="Ninguna">Ninguna</option>
+            <option value="Aprobacion interna">Aprobacion interna</option>
+            <option value="Compra o reposicion">Compra o reposicion</option>
+            <option value="Habilitacion de acceso">Habilitacion de acceso</option>
+            <option value="Intervencion tecnica programada">Intervencion tecnica programada</option>
+            <option value="Atencion de proveedor">Atencion de proveedor</option>
+          </select>
+        </label>
+
+        <label>
+          Responsable o Area involucrada
+          <input type="text" id="owner" placeholder="Ej. Compras, proveedor ISP, Gerencia, RR. HH.">
+        </label>
+
+        <label class="full">
+          Observaciones de seguimiento
+          <textarea id="notes" rows="3" placeholder="Ventana de trabajo, dependencia externa, pendientes, validacion final"></textarea>
+        </label>
+
+        <div class="drawer-actions full">
+          <button type="submit" class="primary">Guardar caso</button>
+          <button type="button" class="secondary" id="reset-form">Limpiar</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="drawer-section" id="mail-panel-section">
+      <div class="mail-layout">
+        <label>
+          Caso base
+          <select id="incident-selector">
+            <option value="">Selecciona un caso registrado</option>
+          </select>
+        </label>
+
+        <label>
+          Destinatario o Area receptora
+          <input type="text" id="recipient" placeholder="Ej. Sr. Salvatore, Compras, proveedor de internet">
+        </label>
+
+        <label>
+          Finalidad del correo
+          <select id="mail-goal">
+            <option value="gestion">Gestion del requerimiento</option>
+            <option value="aprobacion">Solicitud de aprobacion</option>
+            <option value="compra">Solicitud de compra o reposicion</option>
+            <option value="apoyo">Coordinacion o apoyo de otra area</option>
+            <option value="seguimiento">Seguimiento del caso</option>
+          </select>
+        </label>
+
+        <label>
+          Estilo de redaccion
+          <select id="mail-tone">
+            <option value="corporativo">Corporativo</option>
+            <option value="ejecutivo">Ejecutivo</option>
+            <option value="cercano">Cercano profesional</option>
+          </select>
+        </label>
+
+        <label class="full">
+          Detalle de la solicitud
+          <textarea id="extra-context" rows="5" placeholder="Escribe aqui cantidades, materiales, equipos o instrucciones especificas. Si separas por lineas, el bloque Solicitud lo respetara."></textarea>
+        </label>
+
+        <div class="drawer-actions full">
+          <button type="button" class="primary" id="generate-mail">Generar borrador</button>
+          <button type="button" class="secondary" id="save-request">Guardar solicitud</button>
+          <button type="button" class="secondary" id="copy-mail">Copiar texto</button>
+        </div>
+
+        <label class="full">
+          Cuerpo del mensaje
+          <textarea id="mail-output" rows="16" placeholder="Aqui se generara el cuerpo del correo"></textarea>
+        </label>
+      </div>
+    </section>
+
+    <section class="drawer-section" id="inventory-form-section">
+      <form id="inventory-form" class="form-grid">
+        <input type="hidden" id="inventory-id">
+        <label>
+          Articulo o consumible
+          <input type="text" id="inventory-name" placeholder="Ej. Tee de simulador, adaptador HDMI, bateria AA" required>
+        </label>
+        <label>
+          Stock actual
+          <input type="number" id="inventory-stock" min="0" step="1" required>
+        </label>
+        <label>
+          Ubicacion o bahia
+          <input type="text" id="inventory-location" placeholder="Ej. Bahia 3, rack principal, bodega TI" required>
+        </label>
+        <label>
+          Nivel minimo
+          <input type="number" id="inventory-min-stock" min="0" step="1" value="1" required>
+        </label>
+        <label class="full">
+          Ultima salida o movimiento
+          <textarea id="inventory-last-movement" rows="3" placeholder="Ej. Salieron 2 tees para Bahia 2 por desgaste detectado en mantenimiento"></textarea>
+        </label>
+        <div class="drawer-actions full">
+          <button type="submit" class="primary">Guardar insumo</button>
+        </div>
+      </form>
+    </section>
+  </aside>
+
+  <div class="drawer-backdrop" id="drawer-backdrop" hidden></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js" defer></script>
+  <script type="module" src="app.js" defer></script>
+</body>
+</html>
+
