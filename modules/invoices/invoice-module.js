@@ -370,7 +370,7 @@ export function createInvoiceModule({ host, onStatusChange }) {
       <form class="invoice-modal-grid" data-form="import-xlsx">
         <div class="invoice-batch-summary full">
           <strong>Carga el Excel de origen</strong>
-          <span>Se tomaran solo <strong>Fecha de creación</strong>, <strong>Nombre completo Cliente</strong> y <strong>Total</strong>. La seleccion inicial depende del campo <strong>Éxito</strong>: 1 se marca, 0 queda fuera. El formato de fecha esperado es DD/MM/YYYY HH:MM y el monto puede incluir RD$.</span>
+          <span>Se tomaran solo <strong>Fecha de creación</strong>, <strong>Referencia</strong>, <strong>Nombre completo Cliente</strong> y <strong>Total</strong>. La seleccion inicial depende del campo <strong>Éxito</strong>: 1 se marca, 0 queda fuera. El formato de fecha esperado es DD/MM/YYYY HH:MM y el monto puede incluir RD$.</span>
         </div>
         <label class="full">
           Archivo Excel
@@ -390,6 +390,10 @@ export function createInvoiceModule({ host, onStatusChange }) {
             <span>${selectedRows.length}</span>
           </div>
           <div>
+            <strong>Total seleccionado:</strong>
+            <span>${escapeHtml(formatCurrency(getImportSelectedAmount(selectedRows)))}</span>
+          </div>
+          <div>
             <strong>No seleccionados:</strong>
             <span>${skippedRows.length}</span>
           </div>
@@ -401,7 +405,7 @@ export function createInvoiceModule({ host, onStatusChange }) {
         ` : ""}
         <div class="invoice-inline-actions full">
           <button type="button" class="secondary" data-action="download-import-template">Descargar ejemplo</button>
-          <button type="button" class="secondary" data-action="restore-import-default">Aplicar filtro Exito</button>
+          <button type="button" class="secondary" data-action="select-pending-import">Seleccionar pendientes</button>
           <button type="button" class="secondary" data-action="select-all-import">Seleccionar todos</button>
           <button type="button" class="secondary" data-action="clear-import-selection">Quitar todos</button>
         </div>
@@ -678,6 +682,11 @@ export function createInvoiceModule({ host, onStatusChange }) {
       return;
     }
     if (action === "restore-import-default") {
+      restoreImportSelectionBySuccess();
+      renderImportModal();
+      return;
+    }
+    if (action === "select-pending-import") {
       restoreImportSelectionBySuccess();
       renderImportModal();
       return;
@@ -1068,6 +1077,13 @@ export function createInvoiceModule({ host, onStatusChange }) {
     }));
   }
 
+  function getImportSelectedAmount(rows) {
+    return rows.reduce((total, row) => {
+      const amount = Number(normalizeCurrencyValue(row.hoursAmount));
+      return total + (Number.isFinite(amount) ? amount : 0);
+    }, 0);
+  }
+
   function setImportSelectionForAll(selected) {
     state.importDraft.rows = state.importDraft.rows.map((row) => ({
       ...row,
@@ -1210,7 +1226,6 @@ function createEmptyImportDraft() {
 
 async function parseInvoiceImportFile(file) {
   if (!window.XLSX) {
-    // Esperar a que XLSX esté disponible
     await new Promise((resolve, reject) => {
       let attempts = 0;
       const checkInterval = setInterval(() => {
@@ -1272,21 +1287,39 @@ async function parseInvoiceImportFile(file) {
     .filter((row) => row.hasData)
     .map(({ hasData, ...row }) => row);
 
-  console.log("✅ Filas procesadas:", rows.length);
+  const referenceCounts = rows.reduce((acc, row) => {
+    const reference = String(row.reference || "").trim();
+    if (!reference) return acc;
+    acc[reference] = (acc[reference] || 0) + 1;
+    return acc;
+  }, {});
 
-  if (!rows.length) {
+  const rowsWithDuplicateFlags = rows.map((row) => ({
+    ...row,
+    duplicateReference: Boolean(row.reference && referenceCounts[String(row.reference).trim()] > 1),
+  }));
+
+  const rowsWithSelection = rowsWithDuplicateFlags.map((row) => ({
+    ...row,
+    selected: row.sourceSuccess === 1 && !getImportRowIssues(row).length,
+  }));
+
+  console.log("✅ Filas procesadas:", rowsWithSelection.length);
+
+  if (!rowsWithSelection.length) {
     throw new Error("No se encontraron filas utiles para importar.");
   }
 
   return {
     fileName: file.name,
     sheetName,
-    rows,
+    rows: rowsWithSelection,
     columnSummary: [
       `Fecha -> ${columnMap.serviceDate}`,
       `Cliente -> ${columnMap.personName}`,
       `Total -> ${columnMap.hoursAmount}`,
       `Éxito -> ${columnMap.success}`,
+      ...(columnMap.reference ? [`Referencia -> ${columnMap.reference}`] : []),
     ],
   };
 }
@@ -1296,12 +1329,14 @@ function buildImportDraftRow(record, index, columnMap, batchId) {
   const personName = String(record[columnMap.personName] || "").trim();
   const hoursAmount = normalizeImportedAmount(record[columnMap.hoursAmount]);
   const sourceSuccess = parseImportSuccess(record[columnMap.success]);
+  const reference = String(record[columnMap.reference] || "").trim();
   const sourceRowNumber = index + 2;
   const hasData = Boolean(
     serviceDate
       || personName
       || hoursAmount
-      || String(record[columnMap.success] || "").trim(),
+      || String(record[columnMap.success] || "").trim()
+      || reference
   );
 
   const row = {
@@ -1312,6 +1347,8 @@ function buildImportDraftRow(record, index, columnMap, batchId) {
     hoursAmount,
     sourceSuccess,
     sourceSuccessRaw: String(record[columnMap.success] ?? "").trim(),
+    reference,
+    comment: reference ? `Referencia: ${reference}` : "",
     selected: false,
     hasData,
   };
@@ -1332,9 +1369,10 @@ function renderImportTable(rows, emptyMessage) {
           <tr>
             <th></th>
             <th>Fila</th>
+            <th>Referencia</th>
             <th>Fecha</th>
             <th>Nombre</th>
-            <th>Horas</th>
+            <th>Total</th>
             <th>Exito</th>
             <th>Estado de importacion</th>
           </tr>
@@ -1356,6 +1394,10 @@ function renderImportTableRow(row) {
         <input type="checkbox" data-role="import-select-row" data-row-id="${escapeHtml(row.id)}" ${row.selected ? "checked" : ""}>
       </td>
       <td>${escapeHtml(String(row.sourceRowNumber))}</td>
+      <td>
+        ${escapeHtml(row.reference || "-")}
+        ${row.duplicateReference ? `<span class="invoice-auto-badge" data-state="error">Duplicado</span>` : ""}
+      </td>
       <td>
         <input
           type="date"
@@ -1421,6 +1463,14 @@ function resolveImportColumnMap(headers) {
       (value) => value === "date",
       (value) => value.startsWith("date"),
       (value) => value === "data",
+    ]),
+    reference: pickImportHeader(entries, [
+      (value) => value === "referencia",
+      (value) => value === "reference",
+      (value) => value === "ref",
+      (value) => value === "id",
+      (value) => value.includes("referencia"),
+      (value) => value.includes("reference"),
     ]),
     personName: pickImportHeader(entries, [
       (value) => value === "nombre completo cliente",
@@ -1553,6 +1603,9 @@ function getImportRowIssues(row) {
   }
   if (normalizeCurrencyValue(row.hoursAmount) <= 0) {
     issues.push("Horas invalidas");
+  }
+  if (row.duplicateReference) {
+    issues.push("Referencia duplicada");
   }
   return issues;
 }
