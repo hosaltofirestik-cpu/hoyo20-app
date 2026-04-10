@@ -93,6 +93,8 @@ export function createInvoiceModule({ host, onStatusChange }) {
     refs.openBatch = host.querySelector("[data-role='open-batch']");
     refs.exportMonthly = host.querySelector("[data-role='export-monthly']");
     refs.openSettings = host.querySelector("[data-role='open-settings']");
+    refs.tableToolbar = host.querySelector(".table-toolbar");
+    refs.selectionSummary = host.querySelector("[data-role='selection-summary']");
     refs.detail = host.querySelector("[data-role='detail']");
     refs.modal = host.querySelector("[data-role='modal']");
     refs.modalContent = host.querySelector("[data-role='modal-content']");
@@ -132,6 +134,9 @@ export function createInvoiceModule({ host, onStatusChange }) {
     refs.openBatch.addEventListener("click", () => openBatchModal());
     refs.exportMonthly.addEventListener("click", exportMonthlyZip);
     refs.openSettings.addEventListener("click", openSettingsModal);
+    if (refs.tableToolbar) {
+      refs.tableToolbar.addEventListener("click", handleToolbarClick);
+    }
     refs.modalClose.addEventListener("click", closeModal);
     refs.modal.addEventListener("click", (event) => {
       if (event.target === refs.modal) closeModal();
@@ -266,6 +271,9 @@ export function createInvoiceModule({ host, onStatusChange }) {
     const start = state.totalRows ? ((state.page - 1) * state.pageSize) + 1 : 0;
     const end = Math.min(state.page * state.pageSize, state.totalRows);
     refs.paginationInfo.textContent = `Mostrando ${start}-${end} de ${state.totalRows}`;
+    if (refs.selectionSummary) {
+      refs.selectionSummary.textContent = `${state.selectedIds.size} seleccionado(s) · ${formatCurrency(getSelectedInvoiceAmount())}`;
+    }
     refs.openBatch.disabled = !Array.from(state.selectedIds).some((id) => {
       const row = state.rows.find((entry) => entry.id === id);
       return row?.status === "pendiente";
@@ -275,6 +283,45 @@ export function createInvoiceModule({ host, onStatusChange }) {
   function renderTableState() {
     refs.tableBody.innerHTML = '<tr><td colspan="9" class="empty-cell">Cargando facturas desde Supabase...</td></tr>';
     renderSummary();
+  }
+
+  function getSelectedInvoiceAmount() {
+    return Array.from(state.selectedIds).reduce((total, id) => {
+      const row = state.rows.find((item) => item.id === id);
+      const amount = Number(normalizeCurrencyValue(row?.hoursAmount || ""));
+      return total + (Number.isFinite(amount) ? amount : 0);
+    }, 0);
+  }
+
+  function setInvoiceSelectionByFilter(filterFn) {
+    state.selectedIds = new Set(state.rows.filter(filterFn).map((row) => row.id));
+    renderTable();
+  }
+
+  function clearInvoiceSelection() {
+    state.selectedIds = new Set();
+    renderTable();
+  }
+
+  function handleToolbarClick(event) {
+    const action = event.target.closest("[data-action]")?.dataset.action;
+    if (!action) return;
+    if (action === "select-all-rows") {
+      setInvoiceSelectionByFilter(() => true);
+      return;
+    }
+    if (action === "select-pending-rows") {
+      setInvoiceSelectionByFilter((row) => row.status === "pendiente");
+      return;
+    }
+    if (action === "select-ready-rows") {
+      setInvoiceSelectionByFilter((row) => row.status === "listo");
+      return;
+    }
+    if (action === "clear-selection") {
+      clearInvoiceSelection();
+      return;
+    }
   }
 
   function renderTable() {
@@ -405,6 +452,7 @@ export function createInvoiceModule({ host, onStatusChange }) {
         ` : ""}
         <div class="invoice-inline-actions full">
           <button type="button" class="secondary" data-action="download-import-template">Descargar ejemplo</button>
+          <button type="button" class="secondary" data-action="select-ready-import">Seleccionar listos</button>
           <button type="button" class="secondary" data-action="select-pending-import">Seleccionar pendientes</button>
           <button type="button" class="secondary" data-action="select-all-import">Seleccionar todos</button>
           <button type="button" class="secondary" data-action="clear-import-selection">Quitar todos</button>
@@ -415,7 +463,7 @@ export function createInvoiceModule({ host, onStatusChange }) {
               <h3>Lista de espera</h3>
               <p class="invoice-detail-note">Estos registros se crearan en facturas como pendientes cuando confirmes.</p>
             </div>
-            <span class="invoice-auto-badge" data-state="${selectedRows.length ? "success" : "pending"}">${selectedRows.length} seleccionado(s)</span>
+            <span class="invoice-auto-badge" data-state="${selectedRows.length ? "success" : "pending"}">${selectedRows.length} seleccionado(s) · Total: ${escapeHtml(formatCurrency(getImportSelectedAmount(selectedRows)))}</span>
           </div>
           ${renderImportTable(selectedRows, "No hay registros seleccionados para registrar.")}
         </div>
@@ -654,8 +702,9 @@ export function createInvoiceModule({ host, onStatusChange }) {
           serviceDate: row.serviceDate,
           personName: row.personName,
           hoursAmount: row.hoursAmount,
+          invoiceNumber: row.reference || null,
           status: "pendiente",
-          comment: "",
+          comment: row.comment || "",
         })),
         {
           fileName: draft.fileName,
@@ -686,8 +735,13 @@ export function createInvoiceModule({ host, onStatusChange }) {
       renderImportModal();
       return;
     }
-    if (action === "select-pending-import") {
+    if (action === "select-ready-import") {
       restoreImportSelectionBySuccess();
+      renderImportModal();
+      return;
+    }
+    if (action === "select-pending-import") {
+      selectPendingImportRows();
       renderImportModal();
       return;
     }
@@ -1074,6 +1128,13 @@ export function createInvoiceModule({ host, onStatusChange }) {
     state.importDraft.rows = state.importDraft.rows.map((row) => ({
       ...row,
       selected: row.sourceSuccess === 1 && !getImportRowIssues(row).length,
+    }));
+  }
+
+  function selectPendingImportRows() {
+    state.importDraft.rows = state.importDraft.rows.map((row) => ({
+      ...row,
+      selected: row.sourceSuccess === 0 && !getImportRowIssues(row).length,
     }));
   }
 
@@ -1631,6 +1692,11 @@ function buildMarkup() {
         </div>
         <div class="toolbar-right">
           <span class="invoice-auto-badge" data-role="status-badge" data-state="pending">Sincronizando...</span>
+          <button type="button" class="secondary small" data-action="select-all-rows">Seleccionar todos</button>
+          <button type="button" class="secondary small" data-action="select-pending-rows">Solo pendientes</button>
+          <button type="button" class="secondary small" data-action="select-ready-rows">Solo listos</button>
+          <button type="button" class="secondary small" data-action="clear-selection">Limpiar selección</button>
+          <span class="invoice-auto-badge" data-role="selection-summary">0 seleccionado(s) · RD$ 0.00</span>
           <button type="button" class="primary" data-role="open-create">Nuevo pendiente</button>
           <button type="button" class="secondary" data-role="open-import">Importar XLSX</button>
           <button type="button" class="secondary" data-role="open-batch">Facturar seleccionados</button>
@@ -1682,7 +1748,7 @@ function buildMarkup() {
             </div>
           </div>
         </div>
-        <aside class="panel detail-panel invoice-side-panel" data-role="detail">
+        <aside class="panel detail-panel" data-role="detail">
           <div class="invoice-card-empty">Selecciona un registro para ver su detalle.</div>
         </aside>
       </div>
