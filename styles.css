@@ -25,6 +25,9 @@ body {
   font-family: "Inter", sans-serif;
   background: var(--bg);
   color: var(--text);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  scroll-behavior: smooth;
 }
 
 .auth-shell {
@@ -153,7 +156,7 @@ textarea {
   background: transparent;
   color: #eef3ff;
   text-align: left;
-  padding: 12px 14px;
+  padding: 16px 14px;
   border-radius: 10px;
   cursor: pointer;
 }
@@ -275,8 +278,10 @@ textarea {
 .icon-button {
   border: 1px solid var(--border);
   background: white;
-  padding: 9px 14px;
+  padding: 12px 16px;
   cursor: pointer;
+  min-height: 44px;
+  min-width: 44px;
 }
 
 .user-chip {
@@ -980,6 +985,16 @@ textarea {
 
   .search-wrap input {
     width: min(100%, 420px);
+  }
+
+  .icon-button {
+    padding: 14px 18px;
+    min-height: 48px;
+    min-width: 48px;
+  }
+
+  .nav-item {
+    padding: 18px 16px;
   }
 }
 

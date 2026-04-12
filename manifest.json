@@ -1,0 +1,16 @@
+{
+  "name": "Gestion Operativa TI | Hoyo 20",
+  "short_name": "Hoyo20 TI",
+  "description": "Sistema de gestión operativa para TI",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f4f6fb",
+  "theme_color": "#1f5eff",
+  "icons": [
+    {
+      "src": "assets/hoyo20-mark.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
