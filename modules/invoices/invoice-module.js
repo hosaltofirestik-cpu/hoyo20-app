@@ -333,15 +333,15 @@ export function createInvoiceModule({ host, onStatusChange }) {
 
     refs.tableBody.innerHTML = state.rows.map((row) => `
       <tr data-row-id="${escapeHtml(row.id)}" class="${row.id === state.selectedRowId ? "selected" : ""}">
-        <td><input type="checkbox" data-action="select-row" ${state.selectedIds.has(row.id) ? "checked" : ""}></td>
-        <td>${escapeHtml(formatDate(row.serviceDate))}</td>
-        <td>${escapeHtml(row.invoiceNumber || "Pendiente")}</td>
-        <td>${escapeHtml(row.personName)}</td>
-        <td>${escapeHtml(formatCurrency(row.hoursAmount))}</td>
-        <td>${renderStatusBadge(row.status)}</td>
-        <td>${escapeHtml(row.comment || "-")}</td>
-        <td>${escapeHtml(row.updatedByEmail || "-")}</td>
-        <td>
+        <td data-label=""><input type="checkbox" data-action="select-row" ${state.selectedIds.has(row.id) ? "checked" : ""}></td>
+        <td data-label="Fecha">${escapeHtml(formatDate(row.serviceDate))}</td>
+        <td data-label="Factura">${escapeHtml(row.invoiceNumber || "Pendiente")}</td>
+        <td data-label="Persona">${escapeHtml(row.personName)}</td>
+        <td data-label="Monto">${escapeHtml(formatCurrency(row.hoursAmount))}</td>
+        <td data-label="Estado">${renderStatusBadge(row.status)}</td>
+        <td data-label="Comentario">${escapeHtml(row.comment || "-")}</td>
+        <td data-label="Actualizado">${escapeHtml(row.updatedByEmail || "-")}</td>
+        <td data-label="Acciones">
           <div class="row-actions">
             <button type="button" class="link-button" data-action="edit">Editar</button>
             <button type="button" class="link-button" data-action="ready">${row.status === "pendiente" ? "Facturar" : "Reasignar"}</button>

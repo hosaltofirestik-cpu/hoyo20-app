@@ -998,3 +998,937 @@ textarea {
   }
 }
 
+/* Tablets grandes (768px - 980px) */
+@media (max-width: 768px) {
+  .content {
+    padding: 14px;
+  }
+
+  .workspace {
+    grid-template-rows: 56px 1fr;
+  }
+
+  .appbar {
+    padding: 0 12px;
+    gap: 8px;
+  }
+
+  .search-wrap input {
+    width: min(100%, 240px);
+    padding: 9px 12px;
+    font-size: 14px;
+  }
+
+  .appbar-user-email {
+    display: none;
+  }
+
+  .appbar-actions {
+    gap: 8px;
+  }
+
+  .icon-button {
+    padding: 10px 12px;
+    min-height: 40px;
+    min-width: 40px;
+  }
+
+  .user-chip {
+    width: 32px;
+    height: 32px;
+    font-size: 0.85rem;
+  }
+
+  .page-head {
+    margin-bottom: 12px;
+  }
+
+  .page-head h1 {
+    font-size: 1.25rem;
+  }
+
+  .page-head p {
+    font-size: 0.85rem;
+  }
+
+  .head-actions {
+    width: 100%;
+    gap: 8px;
+  }
+
+  .head-actions button {
+    flex: 1;
+    padding: 10px 12px;
+    font-size: 14px;
+  }
+
+  .table-toolbar,
+  .pagination-bar {
+    padding: 12px 14px;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .toolbar-left,
+  .toolbar-right {
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+  }
+
+  .toolbar-right {
+    align-items: stretch;
+  }
+
+  .toolbar-right select,
+  .toolbar-right button {
+    width: 100%;
+  }
+
+  .section-title {
+    font-size: 0.95rem;
+  }
+
+  .results-meta {
+    font-size: 0.85rem;
+  }
+
+  .data-table {
+    min-width: 100%;
+    font-size: 0.9rem;
+  }
+
+  .data-table th,
+  .data-table td {
+    padding: 10px 10px;
+    font-size: 0.85rem;
+  }
+
+  .data-table td:last-child,
+  .data-table th:last-child {
+    min-width: 120px;
+  }
+
+  .pagination-controls {
+    width: 100%;
+    justify-content: space-between;
+    gap: 6px;
+  }
+
+  .pagination-controls button,
+  .pagination-controls select {
+    flex: 1;
+    padding: 8px 8px;
+    font-size: 13px;
+  }
+
+  .detail-toolbar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .detail-actions {
+    width: 100%;
+  }
+
+  .detail-actions button {
+    flex: 1;
+    padding: 10px 12px;
+    font-size: 14px;
+  }
+
+  .inventory-movement-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .inventory-chip-block {
+    min-width: 100%;
+    flex: none;
+  }
+
+  .inventory-movement-bar input,
+  .inventory-movement-bar select {
+    max-width: none;
+    width: 100%;
+  }
+
+  .inventory-movement-field,
+  .inventory-chip-block {
+    width: 100%;
+  }
+
+  .inventory-movement-actions {
+    width: 100%;
+    justify-content: stretch;
+    gap: 8px;
+  }
+
+  .inventory-movement-actions button {
+    flex: 1;
+  }
+
+  .inventory-summary-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .inventory-collection-dialog {
+    width: min(90vw, 500px);
+    padding: 16px;
+  }
+
+  .collection-grid {
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  }
+
+  .doc-header {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .document-view {
+    padding: 16px;
+    min-height: 240px;
+  }
+
+  .drawer {
+    width: min(85vw, 380px);
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  label,
+  input,
+  select,
+  textarea {
+    font-size: 14px;
+  }
+}
+
+/* Tablets pequeñas y móviles grandes (640px - 768px) */
+@media (max-width: 640px) {
+  .content {
+    padding: 12px;
+  }
+
+  .workspace {
+    grid-template-rows: 52px 1fr;
+  }
+
+  .appbar {
+    padding: 0 10px;
+    gap: 6px;
+  }
+
+  .menu-toggle {
+    width: 28px;
+    height: 28px;
+    margin-right: 8px;
+  }
+
+  .search-wrap input {
+    width: min(100%, 160px);
+    padding: 8px 10px;
+    font-size: 13px;
+  }
+
+  .appbar-actions {
+    gap: 4px;
+  }
+
+  .icon-button {
+    padding: 9px 10px;
+    min-height: 36px;
+    min-width: 36px;
+    font-size: 13px;
+  }
+
+  .user-chip {
+    width: 30px;
+    height: 30px;
+    font-size: 0.8rem;
+  }
+
+  .page-head {
+    margin-bottom: 10px;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .page-head h1 {
+    font-size: 1.1rem;
+    margin-bottom: 4px;
+  }
+
+  .page-head p {
+    font-size: 0.8rem;
+    line-height: 1.3;
+  }
+
+  .head-actions {
+    width: 100%;
+    gap: 6px;
+  }
+
+  .head-actions button {
+    flex: 1;
+    padding: 10px 10px;
+    font-size: 13px;
+    min-height: 40px;
+  }
+
+  .panel {
+    border-radius: 8px;
+  }
+
+  .table-toolbar {
+    padding: 10px 12px;
+  }
+
+  .toolbar-left {
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  .toolbar-right button,
+  .toolbar-right select {
+    width: 100%;
+    padding: 8px 10px;
+    font-size: 13px;
+  }
+
+  .section-title {
+    font-size: 0.9rem;
+  }
+
+  .results-meta {
+    font-size: 0.8rem;
+  }
+
+  .data-table {
+    font-size: 0.85rem;
+  }
+
+  .data-table th,
+  .data-table td {
+    padding: 9px 8px;
+    font-size: 0.8rem;
+  }
+
+  .data-table td:last-child,
+  .data-table th:last-child {
+    min-width: 100px;
+  }
+
+  .badge {
+    padding: 3px 6px;
+    font-size: 0.7rem;
+  }
+
+  .row-actions {
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .row-actions select {
+    width: 100%;
+    min-width: auto;
+  }
+
+  .pagination-bar {
+    padding: 10px 12px;
+  }
+
+  .pagination-info {
+    font-size: 0.8rem;
+  }
+
+  .pagination-controls {
+    width: 100%;
+    gap: 4px;
+  }
+
+  .pagination-controls button,
+  .pagination-controls select {
+    flex: 1;
+    padding: 6px 6px;
+    font-size: 12px;
+    min-height: 36px;
+  }
+
+  .pagination-controls span {
+    font-size: 0.75rem;
+  }
+
+  .detail-panel {
+    padding: 12px;
+    margin-top: 12px;
+  }
+
+  .detail-toolbar {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .detail-actions {
+    width: 100%;
+    gap: 6px;
+  }
+
+  .detail-actions button {
+    flex: 1;
+    padding: 9px 10px;
+    font-size: 13px;
+  }
+
+  .detail-subtitle {
+    font-size: 0.8rem;
+  }
+
+  .inventory-movement-bar {
+    gap: 10px;
+  }
+
+  .inventory-movement-field span,
+  .inventory-chip-label {
+    font-size: 0.75rem;
+  }
+
+  .inventory-movement-actions button {
+    padding: 8px 10px;
+    font-size: 12px;
+  }
+
+  .inventory-summary-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .summary-card {
+    padding: 12px 14px;
+  }
+
+  .summary-card-value {
+    font-size: 1.2rem;
+  }
+
+  .nested-table-panel {
+    margin-top: 12px;
+  }
+
+  .inventory-collection-dialog {
+    width: min(90vw, 400px);
+    padding: 14px;
+  }
+
+  .collection-grid {
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 10px;
+  }
+
+  .document-view {
+    padding: 12px;
+    min-height: 200px;
+  }
+
+  .doc-page {
+    padding: 8px 0;
+  }
+
+  .doc-header {
+    padding-bottom: 12px;
+    margin-bottom: 12px;
+    gap: 8px;
+  }
+
+  .doc-section {
+    margin-bottom: 14px;
+  }
+
+  .drawer {
+    width: 90vw;
+  }
+
+  .drawer-header {
+    padding: 14px 16px 12px;
+  }
+
+  .drawer-section {
+    padding: 14px 16px 20px;
+  }
+
+  .form-grid {
+    gap: 12px;
+  }
+
+  label {
+    gap: 6px;
+    font-size: 0.85rem;
+  }
+
+  input,
+  select,
+  textarea {
+    padding: 10px 10px;
+    font-size: 14px;
+  }
+
+  .primary,
+  .secondary,
+  .small,
+  .icon-close {
+    padding: 10px 12px;
+    font-size: 13px;
+    min-height: 40px;
+  }
+
+  button {
+    cursor: pointer;
+  }
+
+  /* Drawer optimization for mobile */
+  .drawer {
+    width: 100%;
+    height: auto;
+    max-height: 90vh;
+    bottom: 0;
+    right: auto;
+    border-left: none;
+    border-top: 1px solid var(--border);
+    border-radius: 16px 16px 0 0;
+    transform: translateY(100%);
+    transition: transform 0.3s ease;
+    z-index: 30;
+  }
+
+  .drawer.open {
+    transform: translateY(0);
+  }
+}
+
+/* Ultra-responsive fixes for form elements */
+@media (max-width: 480px) {
+  /* Ensure table cells have proper data attributes for labels */
+  .data-table tr:not(:first-child) {
+    display: block;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+}
+
+/* Móviles pequeños (< 480px) */
+@media (max-width: 480px) {
+  .content {
+    padding: 8px;
+  }
+
+  .workspace {
+    grid-template-rows: 48px 1fr;
+  }
+
+  .appbar {
+    padding: 0 8px;
+    gap: 4px;
+  }
+
+  .menu-toggle {
+    width: 26px;
+    height: 26px;
+    margin-right: 4px;
+  }
+
+  .menu-toggle span {
+    height: 2px;
+  }
+
+  .search-wrap {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .search-wrap input {
+    width: 100%;
+    padding: 7px 10px;
+    font-size: 12px;
+  }
+
+  .appbar-actions {
+    gap: 3px;
+  }
+
+  .icon-button {
+    padding: 8px 10px;
+    min-height: 36px;
+    min-width: 36px;
+    font-size: 12px;
+    border: none;
+    background: transparent;
+  }
+
+  .icon-button::after {
+    content: '';
+    width: 20px;
+    height: 20px;
+    display: inline-block;
+  }
+
+  .user-chip {
+    width: 28px;
+    height: 28px;
+    font-size: 0.75rem;
+  }
+
+  .page-head {
+    margin-bottom: 8px;
+  }
+
+  .page-head h1 {
+    font-size: 1rem;
+    margin-bottom: 2px;
+  }
+
+  .page-head p {
+    font-size: 0.75rem;
+  }
+
+  .head-actions {
+    width: 100%;
+    gap: 4px;
+  }
+
+  .head-actions button {
+    flex: 1;
+    padding: 9px 8px;
+    font-size: 12px;
+    min-height: 36px;
+  }
+
+  .panel {
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
+  }
+
+  .table-toolbar,
+  .pagination-bar {
+    padding: 8px 10px;
+    gap: 8px;
+  }
+
+  .toolbar-left,
+  .toolbar-right {
+    gap: 6px;
+  }
+
+  .section-title {
+    font-size: 0.85rem;
+  }
+
+  .results-meta {
+    font-size: 0.75rem;
+  }
+
+  /* Convertir tabla a tarjetas en móviles muy pequeños */
+  .data-table {
+    width: 100%;
+    display: block;
+    border: none;
+    min-width: auto;
+  }
+
+  .data-table thead {
+    display: none;
+  }
+
+  .data-table tbody {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .data-table tr {
+    display: block;
+    border: 1px solid var(--border-soft);
+    border-radius: 6px;
+    padding: 10px;
+    background: white;
+  }
+
+  .data-table tr:hover,
+  .data-table tr.selected {
+    background: #f8fbff;
+    border-color: #d8e4ff;
+  }
+
+  .data-table td {
+    display: grid;
+    grid-template-columns: 100px 1fr;
+    gap: 8px;
+    padding: 6px 0;
+    border: none;
+    border-bottom: 1px solid var(--border-soft);
+    text-align: left;
+  }
+
+  .data-table td:last-child {
+    border-bottom: none;
+    min-width: auto;
+    grid-template-columns: 1fr;
+  }
+
+  .data-table td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    font-size: 0.75rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .data-table th {
+    display: none;
+  }
+
+  .badge {
+    padding: 2px 6px;
+    font-size: 0.65rem;
+  }
+
+  .row-actions {
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .row-actions select {
+    width: 100%;
+    padding: 6px 8px;
+    font-size: 12px;
+  }
+
+  .pagination-controls {
+    width: 100%;
+    justify-content: space-between;
+    gap: 2px;
+  }
+
+  .pagination-controls button,
+  .pagination-controls select {
+    flex: 1;
+    padding: 6px 6px;
+    font-size: 11px;
+    min-height: 32px;
+  }
+
+  .pagination-controls span {
+    font-size: 0.7rem;
+  }
+
+  .pagination-info {
+    font-size: 0.75rem;
+    width: 100%;
+    margin-bottom: 8px;
+  }
+
+  .detail-panel {
+    padding: 10px;
+    margin-top: 10px;
+  }
+
+  .detail-toolbar {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .detail-actions {
+    width: 100%;
+    gap: 4px;
+  }
+
+  .detail-actions button {
+    flex: 1;
+    padding: 8px 10px;
+    font-size: 12px;
+    min-height: 36px;
+  }
+
+  .detail-subtitle {
+    font-size: 0.75rem;
+  }
+
+  .inventory-movement-bar {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .inventory-movement-field,
+  .inventory-chip-block {
+    width: 100%;
+  }
+
+  .inventory-movement-field span,
+  .inventory-chip-label {
+    font-size: 0.7rem;
+  }
+
+  .inventory-movement-bar input,
+  .inventory-movement-bar select {
+    width: 100%;
+    max-width: none;
+    padding: 8px 10px;
+    font-size: 14px;
+  }
+
+  .chip-set {
+    gap: 6px;
+  }
+
+  .chip {
+    padding: 6px 10px;
+    font-size: 0.75rem;
+  }
+
+  .inventory-movement-actions {
+    width: 100%;
+    flex-direction: row;
+    justify-content: stretch;
+  }
+
+  .inventory-movement-actions button {
+    flex: 1;
+    padding: 8px 8px;
+    font-size: 12px;
+    min-height: 36px;
+  }
+
+  .inventory-summary-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .summary-card {
+    padding: 10px 12px;
+  }
+
+  .summary-card-value {
+    font-size: 1.1rem;
+  }
+
+  .summary-card-label,
+  .summary-card-meta {
+    font-size: 0.7rem;
+  }
+
+  .nested-table-panel {
+    margin-top: 10px;
+  }
+
+  .compact-toolbar {
+    padding: 10px 12px;
+  }
+
+  .inventory-collection-dialog {
+    width: 95vw;
+    max-height: 80vh;
+    padding: 12px;
+  }
+
+  .collection-grid {
+    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+    gap: 8px;
+  }
+
+  .inventory-collection-actions {
+    gap: 6px;
+    margin-top: 10px;
+  }
+
+  .inventory-collection-actions button {
+    flex: 1;
+    padding: 8px 10px;
+    font-size: 12px;
+  }
+
+  .document-view {
+    padding: 10px;
+    min-height: 180px;
+    border-radius: 6px;
+  }
+
+  .doc-page {
+    font-size: 0.9rem;
+    line-height: 1.6;
+  }
+
+  .doc-header {
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+    gap: 6px;
+  }
+
+  .doc-header h2 {
+    font-size: 1rem;
+  }
+
+  .doc-section {
+    margin-bottom: 12px;
+  }
+
+  .doc-section-title {
+    font-size: 0.9rem;
+  }
+
+  .doc-box {
+    padding: 10px 12px;
+    font-size: 0.8rem;
+  }
+
+  .drawer {
+    width: 100%;
+    height: 80vh;
+  }
+
+  .drawer-header {
+    padding: 12px 14px 10px;
+  }
+
+  .drawer-header h2 {
+    font-size: 1rem;
+  }
+
+  .drawer-section {
+    padding: 12px 14px 16px;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  label {
+    gap: 6px;
+    font-size: 0.8rem;
+  }
+
+  input,
+  select,
+  textarea {
+    padding: 10px 10px;
+    font-size: 14px;
+    border-radius: 6px;
+  }
+
+  .primary,
+  .secondary,
+  .small,
+  .icon-close {
+    padding: 10px 12px;
+    font-size: 12px;
+    min-height: 40px;
+    border-radius: 6px;
+  }
+}
+

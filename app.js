@@ -906,14 +906,14 @@ function renderIncidentTable() {
 
   tableBody.innerHTML = paginated.map((incident) => `
     <tr data-id="${incident.id}" class="${incident.id === selectedIncidentId ? "selected" : ""}">
-      <td>${incident.id.slice(0, 8)}</td>
-      <td>${formatDateTime(incident.occurredAt)}</td>
-      <td>${escapeHtml(incident.area)}</td>
-      <td>${escapeHtml(incident.title)}</td>
-      <td><span class="badge ${priorityClass(incident.priority)}">${escapeHtml(incident.priority)}</span></td>
-      <td><span class="badge ${statusClass(incident.status)}">${escapeHtml(incident.status)}</span></td>
-      <td>${escapeHtml(incident.owner || "Soporte TI")}</td>
-      <td>
+      <td data-label="ID">${incident.id.slice(0, 8)}</td>
+      <td data-label="Fecha y hora">${formatDateTime(incident.occurredAt)}</td>
+      <td data-label="Servicio">${escapeHtml(incident.area)}</td>
+      <td data-label="Incidencia">${escapeHtml(incident.title)}</td>
+      <td data-label="Prioridad"><span class="badge ${priorityClass(incident.priority)}">${escapeHtml(incident.priority)}</span></td>
+      <td data-label="Estado"><span class="badge ${statusClass(incident.status)}">${escapeHtml(incident.status)}</span></td>
+      <td data-label="Responsable">${escapeHtml(incident.owner || "Soporte TI")}</td>
+      <td data-label="Acciones">
         <div class="row-actions">
           <select data-status-control onclick="event.stopPropagation()">${renderStatusOptions(incident.status)}</select>
           <button type="button" class="link-button" data-action="edit">Editar</button>
@@ -935,12 +935,12 @@ function renderRequests() {
   }
   requestsTableBody.innerHTML = filtered.map((request) => `
     <tr data-id="${request.id}" class="${request.id === selectedRequestId ? "selected" : ""}">
-      <td>${request.id.slice(0, 8)}</td>
-      <td>${formatDateTime(request.createdAt)}</td>
-      <td>${escapeHtml(request.incidentTitle)}</td>
-      <td>${escapeHtml(request.recipient)}</td>
-      <td><select data-request-status onclick="event.stopPropagation()">${renderRequestStatusOptions(request.status)}</select></td>
-      <td><button type="button" class="link-button">Ver</button></td>
+      <td data-label="ID">${request.id.slice(0, 8)}</td>
+      <td data-label="Fecha y hora">${formatDateTime(request.createdAt)}</td>
+      <td data-label="Incidencia base">${escapeHtml(request.incidentTitle)}</td>
+      <td data-label="Destinatario">${escapeHtml(request.recipient)}</td>
+      <td data-label="Estado"><select data-request-status onclick="event.stopPropagation()">${renderRequestStatusOptions(request.status)}</select></td>
+      <td data-label="Acciones"><button type="button" class="link-button">Ver</button></td>
     </tr>
   `).join("");
 }
@@ -968,14 +968,14 @@ function renderInventory() {
     const assigned = getAllocatedQty(item);
     return `
       <tr data-id="${item.id}" class="${item.id === selectedInventoryId ? "selected" : ""}">
-        <td>${escapeHtml(item.name)}</td>
-        <td>${escapeHtml(String(available))}${available <= item.minStock ? ' <span class="badge priority-alta">Bajo</span>' : ""}</td>
-        <td>${escapeHtml(String(total))}</td>
-        <td>${escapeHtml(String(assigned))}</td>
-        <td>${escapeHtml(String(item.minStock))}</td>
-        <td>${escapeHtml(item.location)}</td>
-        <td>${escapeHtml(formatDateTime(item.updatedAt))}</td>
-        <td><button type="button" class="link-button" data-inventory-action="edit">Editar</button></td>
+        <td data-label="Articulo">${escapeHtml(item.name)}</td>
+        <td data-label="Disponible">${escapeHtml(String(available))}${available <= item.minStock ? ' <span class="badge priority-alta">Bajo</span>' : ""}</td>
+        <td data-label="Total">${escapeHtml(String(total))}</td>
+        <td data-label="Entregado">${escapeHtml(String(assigned))}</td>
+        <td data-label="Stock minimo">${escapeHtml(String(item.minStock))}</td>
+        <td data-label="Ubicacion base">${escapeHtml(item.location)}</td>
+        <td data-label="Ultima actualizacion">${escapeHtml(formatDateTime(item.updatedAt))}</td>
+        <td data-label="Acciones"><button type="button" class="link-button" data-inventory-action="edit">Editar</button></td>
       </tr>
     `;
   }).join("");
@@ -2481,3 +2481,32 @@ if ('serviceWorker' in navigator) {
       .catch(error => console.log('SW registration failed'));
   });
 }
+
+// Add data-label attributes to table cells for mobile responsiveness
+function initMobileTableLabels() {
+  document.querySelectorAll('.data-table, .invoice-table').forEach(table => {
+    const headers = Array.from(table.querySelectorAll('thead th')).map(h => h.textContent.trim());
+    if (headers.length === 0) return;
+    
+    table.querySelectorAll('tbody tr').forEach(row => {
+      row.querySelectorAll('td').forEach((cell, index) => {
+        if (headers[index]) {
+          cell.setAttribute('data-label', headers[index]);
+        }
+      });
+    });
+  });
+}
+
+// Initialize on load and after DOM updates
+document.addEventListener('DOMContentLoaded', initMobileTableLabels);
+
+// Re-initialize when content changes
+const observer = new MutationObserver(() => {
+  setTimeout(initMobileTableLabels, 100);
+});
+
+observer.observe(document.getElementById('incident-table-body') || document.body, {
+  childList: true,
+  subtree: true
+});
